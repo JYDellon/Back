@@ -1,0 +1,51 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    products: /images/products
+services:
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+  # makes classes in src/ available to be used as services
+  App\Service\UserService:
+    arguments:
+      $passwordHasher: "@security.password_hasher"
+      $entityManager: "@doctrine.orm.entity_manager"
+      $mailer: '@Symfony\Component\Mailer\MailerInterface'
+      $urlGenerator: '@Symfony\Component\Routing\Generator\UrlGeneratorInterface'
+      $validator: '@Symfony\Component\Validator\Validator\ValidatorInterface'
+
+  App\Service\PasswordGenerator:
+    arguments: []
+  # App\DataFixtures\TypeFixtures:
+  #   arguments:
+  #       $slugger: '@slugger'
+  #App\Repository\RefreshTokenRepository:
+  #arguments:
+  #$registry: '@doctrine'
+
+  #App\Service\TokenBlacklistService:
+  #    arguments:
+  #        $cache: '@cache.app'
+
+  #App\EventSubscriber\LogoutSubscriber:
+  #    arguments:
+  #        $tokenBlacklistService: '@App\Service\TokenBlacklistService'
+  #    tags:
+  #        - { name: 'kernel.event_subscriber' }
+  # this creates a service per class whose id is the fully-qualified class name
+  App\:
+    resource: "../src/"
+    exclude:
+      - "../src/DependencyInjection/"
+      - "../src/Entity/"
+      - "../src/Kernel.php"
+  slugger:
+    class: Symfony\Component\String\Slugger\AsciiSlugger
+  # add more service definitions when explicit configuration is needed
+  # please note that last definitions always *replace* previous ones
+  

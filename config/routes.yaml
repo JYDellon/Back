@@ -1,0 +1,186 @@
+controllers:
+  resource:
+    path: ../src/Controller/
+    namespace: App\Controller
+  type: attribute
+
+#ROUTES UTILISATEUR ET VISITEUR
+
+#.....REGISTRATION.........................................
+# Register user
+register:
+  path: /api/register
+  controller: App\Controller\UserController::register
+  methods: [POST]
+
+# Email de confirmation
+confirm_email:
+  path: /api/confirm-email/{token}
+  controller: App\Controller\UserController::confirmEmail
+  methods: [GET]
+
+#.....CONNEXION........................................
+# Connexion user
+api_login_check:
+  path: /api/login_check
+
+api_refresh_token:
+  path: /api/token/refresh
+
+api_token_invalidate:
+  path: /api/token/invalidate
+
+#.....DECONNECTER......................................
+# Deconnexion user
+logout:
+  path: /api/logout
+  controller: 'App\Controller\UserController::logout'
+  methods: ["GET"]
+
+#.....MOT DE PASSE OUBLIE...................................
+# Reinitialisation mot de passe- envoi de mot de passe
+reset_password:
+  path: /api/reset-password
+  controller: App\Controller\UserController::resetPassword
+  methods: [GET, POST]
+
+# Reinitialisation mot de passe - nouveau mot de passe
+reset_password_from_link:
+  path: /api/reset-password/{token}
+  controller: App\Controller\UserController::resetPasswordFromLink
+  methods: [GET, POST]
+
+#.....SUPPRIMER SON COMPTE.....................
+# Suppression de compte
+delete_account:
+  path: /api/delete-account
+  controller: App\Controller\UserController::deleteAccount
+  methods: [DELETE]
+
+#.....MODIFIER SON COMPTE...................................
+# Modification de compte
+modify_account:
+  path: /api/modify-account
+  controller: App\Controller\UserController::modifyAccount
+  methods: [PUT]
+
+#.....CONTACT..............................................
+# Contact-demande
+create:
+  path: /api/contacts
+  controller: App\Controller\ContactController::create
+  methods: [POST]
+
+#.....NEWSLETTER..............................................
+# Newsletter-abonnement
+api_newsletter_subscribe:
+  path: /api/newsletter/subscribe
+  controller: App\Controller\NewsletterController::subscribeToNewsletter
+  methods: [POST]
+
+#.........PRODUITS................................
+# Home - Récupération des nouveaux produits et des produits populaires
+api_new_products:
+    path: /api/new-products
+    controller: App\Controller\HomeController::getNewProducts
+    methods: [GET]
+
+api_popular_products:
+    path: /api/popular-products
+    controller: App\Controller\HomeController::getPopularProducts
+    methods: [GET]
+
+
+
+
+
+
+
+#ROUTES ADMINS
+
+#.........ADMIN-GESTION DES UTILISATEURS................................
+# Admin - Liste des utilisateurs
+api_users_list:
+  path: "/api/users"
+  controller: 'App\Controller\AdminUsersController::getUsers'
+  methods: ["POST"]
+
+# Admin - Bannir un utilisateur
+api_user_ban:
+  path: "/api/users/{id}/ban"
+  controller: 'App\Controller\AdminUsersController::banUser'
+  methods: ["POST"]
+  requirements:
+    id: '\d+'
+
+# Admin - Supprimer un utilisateur
+api_user_delete:
+  path: "/api/users/{id}"
+  controller: 'App\Controller\AdminUsersController::deleteUser'
+  methods: ["DELETE"]
+  requirements:
+    id: '\d+'
+
+    # Admin - Supprimer un utilisateur
+api_user_change_role:
+  path: "/api/users/{id}/change-role"
+  controller: 'App\Controller\AdminUsersController::changeUserRole'
+  methods: ["PUT"]
+  requirements:
+    id: '\d+'
+
+#.........ADMIN-GESTION DES PRODUITS................................
+type_delete:
+    path: "/api/types/{id}"
+    controller: 'App\Controller\TypeController::deleteType'
+    methods: [DELETE]
+#.........ADMIN-GESTION DES CONTACTS............................
+# Admin - liste des contacts
+api_contacts_all:
+  path: /api/contacts/all
+  controller: App\Controller\ContactController::getAllContacts
+  methods: [GET]
+
+# Admin - selectionner une contact
+api_contacts_detail:
+  path: /api/contacts/detail/{id}
+  controller: App\Controller\ContactController::getDetailContact
+  methods: [GET]
+
+# Admin - supprimer un contact
+api_contacts_delete:
+  path: /api/contacts/delete/{id}
+  controller: App\Controller\ContactController::deleteContact
+  methods: [DELETE]
+
+# Admin - modification contacts
+api_contacts_update:
+  path: /api/update/delete/{id}
+  controller: App\Controller\ContactController::updateContact
+  methods: [PUT]
+
+# Admin - mise à jour status contacts
+api_contact_update_status:
+  path: /api/contact/update-status/{id}
+  controller: App\Controller\ContactController::updateContactStatus
+  methods: [PATCH]
+
+#.........ADMIN-GESTION DE NEWSLETTER............................
+# Admin - liste des abbonnés
+api_newsletter_all:
+  path: /api/newsletter/all
+  controller: App\Controller\NewsletterController::getAllNewsletterSubscriber
+  methods: [GET]
+
+# Admin - supprimer un abbonné
+api_newsletterSubscriber_delete:
+  path: /api/newsletterSubscriber/delete/{id}
+  controller: App\Controller\NewsletterController::deleteNewsletterSubscriber
+  methods: [DELETE]
+
+# Admin - mettre à jour un abbonné
+api_NewsletterSubscriber_update:
+  path: /api/newsletterSubscriber/update/{id}
+  controller: App\Controller\NewsletterController::updateNewsletterSubscriber
+  methods: [PUT]
+
