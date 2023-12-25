@@ -20,7 +20,13 @@ class TypeRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Type::class);
     }
-
+    public function findTypesWithNullParent()
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.parent is null')
+            ->getQuery()
+            ->getResult();
+    }
 //    /**
 //     * @return Type[] Returns an array of Type objects
 //     */

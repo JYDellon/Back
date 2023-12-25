@@ -23,47 +23,86 @@ class TypeController extends AbstractController
     // ---------------------------------------------READ------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------
 
+    // #[Route('/api/types', name: 'get_types', methods: ['GET'])]
+    // public function getTypes(TypeRepository $typeRepository): JsonResponse
+    // {
+    //     $types = $typeRepository->findAll();
+
+    //     $typeData = [];
+
+    //     foreach ($types as $type) {
+
+
+    //         $typeData[] = [
+    //             'idType' => $type->getId(),
+    //             'Nom' => $type->getTypeName(),
+
+    //         ];
+    //     }
+
+    //     return $this->json($typeData, Response::HTTP_OK);
+    // }
+
+
     #[Route('/api/types', name: 'get_types', methods: ['GET'])]
     public function getTypes(TypeRepository $typeRepository): JsonResponse
     {
         $types = $typeRepository->findAll();
-
+    
         $typeData = [];
-
+    
         foreach ($types as $type) {
-
-
+            $parent_id = ($type->getParent() !== null) ? $type->getParent()->getId() : null;
+    
             $typeData[] = [
                 'idType' => $type->getId(),
                 'Nom' => $type->getTypeName(),
-
+                'parent_id' => $parent_id,
             ];
         }
-
+    
         return $this->json($typeData, Response::HTTP_OK);
     }
-
+    
+    
     // -------------------------------------------------------------------------------------------------------
     // ---------------------------------------------LIRE UN TYPE-----------------------------------------------
     // -------------------------------------------------------------------------------------------------------
-    #[Route('/api/types/{id}', name: 'get_type', methods: ['GET'])]
+    // #[Route('/api/types/{id}', name: 'get_type', methods: ['GET'])]
     
-    /**
-     * @param Type $type
-     * @return JsonResponse
-     */
+    // /**
+    //  * @param Type $type
+    //  * @return JsonResponse
+    //  */
+    // public function getType(Type $type): JsonResponse
+    // {
+    //     // Construire un tableau associatif avec les données du type spécifié
+    //     $typeData = [
+    //         'idType' => $type->getId(),
+    //         'Nom' => $type->getTypeName(),
+    //         // Ajoutez d'autres propriétés au besoin
+    //     ];
+
+    //     // Retourner une réponse JSON avec les données du type spécifié et un code HTTP OK
+    //     return $this->json($typeData, Response::HTTP_OK);
+    // }
+
+    #[Route('/api/types/{id}', name: 'get_type', methods: ['GET'])]
     public function getType(Type $type): JsonResponse
     {
         // Construire un tableau associatif avec les données du type spécifié
         $typeData = [
             'idType' => $type->getId(),
             'Nom' => $type->getTypeName(),
+            'parent_id' => $type->getParent() ? $type->getParent()->getId() : null,
             // Ajoutez d'autres propriétés au besoin
         ];
-
+    
         // Retourner une réponse JSON avec les données du type spécifié et un code HTTP OK
         return $this->json($typeData, Response::HTTP_OK);
     }
+    
+
     // -------------------------------------------------------------------------------------------------------
     // ---------------------------------------------MISE À JOUR------------------------------------------------
     // -------------------------------------------------------------------------------------------------------
@@ -184,35 +223,107 @@ class TypeController extends AbstractController
     // ---------------------------------------------CREATE----------------------------------------------------
     // -------------------------------------------------------------------------------------------------------
 
+    // #[Route('/api/types', name: 'create_type', methods: ['POST'])]
+    // public function createType(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    // {
+    //     $data = json_decode($request->getContent(), true);
+
+    //     // Vérifie si les données requises sont présentes dans la requête
+    //     if (isset($data['typeName'])) {
+    //         $typeName = $data['typeName'];
+
+    //         // Générez le slug à partir du nom du type
+    //         $slugify = new Slugify();
+    //         $slug = $slugify->slugify($typeName);
+
+    //         // Crée un nouvel objet Type
+    //         $type = new Type();
+    //         $type->setTypeName($typeName);
+    //         $type->setSlug($slug);
+
+    //         // Persiste le nouvel objet dans la base de données
+    //         $entityManager->persist($type);
+    //         $entityManager->flush();
+
+    //         // Retourne une réponse de succès
+    //         return $this->json(['message' => 'Type créé avec succès', 'id' => $type->getId()], Response::HTTP_CREATED);
+    //     }
+
+    //     // Retourne une réponse indiquant des données manquantes ou invalides
+    //     return $this->json(['error' => 'Données invalides pour la création du type'], Response::HTTP_BAD_REQUEST);
+    // }
+
+    // #[Route('/api/types', name: 'create_type', methods: ['POST'])]
+    // public function createType(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    // {
+    //     $data = json_decode($request->getContent(), true);
+
+    //     // Vérifie si les données requises sont présentes dans la requête
+    //     if (isset($data['typeName'])) {
+    //         $typeName = $data['typeName'];
+
+    //         // Générez le slug à partir du nom du type
+    //         $slugify = new Slugify();
+    //         $slug = $slugify->slugify($typeName);
+
+    //         // Crée un nouvel objet Type
+    //         $type = new Type();
+    //         $type->setTypeName($typeName);
+    //         $type->setSlug($slug);
+
+    //         // Persiste le nouvel objet dans la base de données
+    //         $entityManager->persist($type);
+    //         $entityManager->flush();
+
+    //         // Retourne une réponse de succès
+    //         return $this->json(['message' => 'Type créé avec succès', 'id' => $type->getId()], Response::HTTP_CREATED);
+    //     }
+
+    //     // Retourne une réponse indiquant des données manquantes ou invalides
+    //     return $this->json(['error' => 'Données invalides pour la création du type'], Response::HTTP_BAD_REQUEST);
+    // }
+ 
     #[Route('/api/types', name: 'create_type', methods: ['POST'])]
-    public function createType(Request $request, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
+public function createType(Request $request, EntityManagerInterface $entityManager, TypeRepository $typeRepository): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
 
-        // Vérifie si les données requises sont présentes dans la requête
-        if (isset($data['typeName'])) {
-            $typeName = $data['typeName'];
+    // Vérifie si les données requises sont présentes dans la requête
+    if (isset($data['typeName'])) {
+        $typeName = $data['typeName'];
+        $parentTypeId = isset($data['parent_id']) ? $data['parent_id'] : null;
 
-            // Générez le slug à partir du nom du type
-            $slugify = new Slugify();
-            $slug = $slugify->slugify($typeName);
+        // Générez le slug à partir du nom du type
+        $slugify = new Slugify();
+        $slug = $slugify->slugify($typeName);
 
-            // Crée un nouvel objet Type
-            $type = new Type();
-            $type->setTypeName($typeName);
-            $type->setSlug($slug);
+        // Crée un nouvel objet Type
+        $type = new Type();
+        $type->setTypeName($typeName);
+        $type->setSlug($slug);
 
-            // Persiste le nouvel objet dans la base de données
-            $entityManager->persist($type);
-            $entityManager->flush();
-
-            // Retourne une réponse de succès
-            return $this->json(['message' => 'Type créé avec succès', 'id' => $type->getId()], Response::HTTP_CREATED);
+        // Si parent_id est fourni, récupérez l'entité parente
+        if ($parentTypeId !== null) {
+            $parentType = $typeRepository->find($parentTypeId);
+            // Assurez-vous que l'entité parente existe
+            if ($parentType) {
+                $type->setParent($parentType);
+            } else {
+                return $this->json(['error' => 'Type parent introuvable'], Response::HTTP_BAD_REQUEST);
+            }
         }
 
-        // Retourne une réponse indiquant des données manquantes ou invalides
-        return $this->json(['error' => 'Données invalides pour la création du type'], Response::HTTP_BAD_REQUEST);
+        // Persiste le nouvel objet dans la base de données
+        $entityManager->persist($type);
+        $entityManager->flush();
+
+        // Retourne une réponse de succès
+        return $this->json(['message' => 'Type créé avec succès', 'id' => $type->getId()], Response::HTTP_CREATED);
     }
 
+    // Retourne une réponse indiquant des données manquantes ou invalides
+    return $this->json(['error' => 'Données invalides pour la création du type'], Response::HTTP_BAD_REQUEST);
+}
 
+    
 }
